@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-
+import React, { ReactNode, ErrorInfo } from 'react';
+import * as Sentry from '@sentry/react';
 
 interface State {
   hasError: boolean;
@@ -9,19 +9,19 @@ interface ErrorBoundaryProps {
   children: ReactNode;
 }
 
-
-class ErrorBoundary extends React.Component<ErrorBoundaryProps , State> {
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.log({ error, errorInfo });
+    Sentry.captureException(error, { extra: errorInfo });
   }
 
   render() {
